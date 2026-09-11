@@ -19,6 +19,9 @@ _SILENT_SESSION_PREFIXES = ("SYSTEM-", "HEALTH-")
 
 
 def _should_forward_to_backend(source_ip: str, session_id: str, event_type: str, metadata: Dict[str, Any]) -> bool:
+    # High-priority attack events and decoy hits must NEVER be dropped
+    if event_type in ("decoy_access", "auth_attempt", "command", "exploit_attempt", "http_request"):
+        return True
     if event_type in _SILENT_EVENT_TYPES:
         return False
     if any(session_id.startswith(p) for p in _SILENT_SESSION_PREFIXES):

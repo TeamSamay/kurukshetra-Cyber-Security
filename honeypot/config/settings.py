@@ -63,8 +63,14 @@ class Settings(BaseSettings):
     GROQ_API_KEY: Optional[str] = None
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
+    # Company clone (set by provision_clone.py)
+    CLONE_PROFILE_PATH: Optional[str] = None
+    CLONE_ID: Optional[str] = None
+    CLONE_COMPANY: Optional[str] = None
+    CLONE_DOMAIN: Optional[str] = None
+
     model_config = SettingsConfigDict(
-        env_file=(".env", "config.env", "honeypot/config/config.env"),
+        env_file=(".env", ".env.clone", "config.env", "honeypot/config/config.env"),
         env_file_encoding="utf-8",
         extra="ignore"
     )

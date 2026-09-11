@@ -32,6 +32,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from honeypot.config.settings import settings
 from honeypot.common.backend_client import backend_client
 from honeypot.common.telemetry import emit_event
+from honeypot.clone.provisioner import CloneProvisioner
 from honeypot.ssh.ssh_server import ssh_honeypot
 from honeypot.web.web_server import web_app
 
@@ -63,6 +64,18 @@ def display_welcome_banner():
 
 
 def run_server():
+    # 0. Apply active company clone profile (if provisioned)
+    active_clone = CloneProvisioner().apply_to_settings()
+    if active_clone:
+        console.print(Panel(
+            f"[bold white]Clone ID   :[/bold white] [cyan]{active_clone.clone_id}[/cyan]\n"
+            f"[bold white]Company    :[/bold white] {active_clone.company_name}\n"
+            f"[bold white]Hostname   :[/bold white] [green]{active_clone.hostname}[/green]\n"
+            f"[bold white]Sanitized  :[/bold white] [green]Yes — synthetic decoys only[/green]",
+            title="[bold yellow]Company Clone Active[/bold yellow]",
+            expand=False,
+        ))
+
     display_welcome_banner()
 
     # 1. Start Backend Dispatcher Worker
@@ -79,6 +92,7 @@ def run_server():
         source_ip="127.0.0.1",
         session_id="SYSTEM-BOOT",
         metadata={
+            "internal_probe": True,
             "ssh_port": settings.SSH_PORT,
             "web_port": settings.WEB_PORT,
             "backend_url": settings.full_backend_events_url,

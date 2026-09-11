@@ -12,6 +12,24 @@ from honeypot.common.backend_client import backend_client
 from honeypot.common.threat_learning_engine import threat_engine
 from honeypot.config.settings import settings
 
+# Internal / probe traffic — log locally only, never forward to production backend
+_INTERNAL_IPS = frozenset({"127.0.0.1", "::1", "localhost", "0.0.0.0"})
+_SILENT_EVENT_TYPES = frozenset({"honeypot_started", "health_check", "system"})
+_SILENT_SESSION_PREFIXES = ("SYSTEM-", "HEALTH-")
+
+
+def _should_forward_to_backend(source_ip: str, session_id: str, event_type: str, metadata: Dict[str, Any]) -> bool:
+    if event_type in _SILENT_EVENT_TYPES:
+        return False
+    if any(session_id.startswith(p) for p in _SILENT_SESSION_PREFIXES):
+        return False
+    if metadata.get("internal_probe") or metadata.get("health_check"):
+        return False
+    ip = (source_ip or "").split("%")[0]
+    if ip in _INTERNAL_IPS:
+        return False
+    return True
+
 
 def emit_event(
     service: str,
@@ -60,8 +78,9 @@ def emit_event(
     # 1. Thread-safe Local File & Console Logging
     default_logger.log(evt)
 
-    # 2. Asynchronous Non-blocking Backend Dispatch to Render Backend
-    backend_client.send_event(evt)
+    # 2. Forward only real external attacker telemetry (not health checks / internal probes)
+    if _should_forward_to_backend(source_ip, session_id, event_type, combined_meta):
+        backend_client.send_event(evt)
 
     return evt
 

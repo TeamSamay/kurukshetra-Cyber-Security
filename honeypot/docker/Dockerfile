@@ -24,6 +24,11 @@ COPY honeypot /app/honeypot
 COPY main.py /app/main.py
 COPY mock_backend.py /app/mock_backend.py
 COPY generate_report.py /app/generate_report.py
+COPY provision_clone.py /app/provision_clone.py
+COPY demo_launcher.py /app/demo_launcher.py
+COPY test_attacker.py /app/test_attacker.py
+COPY attack.py /app/attack.py
+COPY attacker_simulator /app/attacker_simulator
 
 # Create logs & reports directory
 RUN mkdir -p /app/logs /app/reports

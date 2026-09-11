@@ -93,6 +93,14 @@ async def telemetry_middleware(request: Request, call_next):
         "content_type": headers_dict.get("content-type", ""),
     }
 
+    # Silent paths — Docker healthcheck, internal ops (never create attack sessions)
+    silent_paths = (
+        "/health", "/favicon.ico", "/api/v1/health",
+        "/api/clone/status", "/api/threat-intel",
+    )
+    if path in silent_paths or path.startswith("/api/clone/"):
+        return response
+
     # Prevent duplicate telemetry: let dedicated route handlers emit rich decoy/auth events
     handled_by_route = (
         (method == "POST" and path == "/login") or
@@ -100,7 +108,7 @@ async def telemetry_middleware(request: Request, call_next):
         path in ("/admin", "/dashboard", "/.env", "/config", "/users", "/backup", "/credentials", "/favicon.ico")
     )
 
-    if not handled_by_route and path != "/favicon.ico":
+    if not handled_by_route:
         # Emit structured http_request telemetry for general probes, scans, and crawler hits
         emit_event(
             service="web",
@@ -112,6 +120,15 @@ async def telemetry_middleware(request: Request, call_next):
         )
 
     return response
+
+
+# ===================================================================
+# Internal silent health (Docker / GCP — no telemetry, no backend events)
+# ===================================================================
+
+@web_app.get("/health")
+async def internal_health():
+    return {"status": "healthy", "service": "kurukshetra-honeypot"}
 
 
 # ===================================================================

@@ -209,20 +209,11 @@ async def api_config(request: Request):
 
 
 @api_router.get("/v1/health")
-async def api_health(request: Request):
-    """Simulated health check endpoint."""
-    client_ip = get_client_ip(request)
-    session_id = get_session_id(request)
-
-    emit_event(
-        service="api",
-        event_type="api_call",
-        event="GET /api/v1/health",
-        source_ip=client_ip,
-        session_id=session_id,
-        metadata={"endpoint": "/api/v1/health"}
-    )
-
+async def api_health():
+    """
+    Deceptive health endpoint for attackers (no telemetry — avoids Docker/monitor noise).
+    Internal container health uses GET /health on the web app (silent).
+    """
     return {
         "status": "UP",
         "node": settings.HONEYPOT_HOSTNAME,
@@ -274,4 +265,50 @@ async def get_attacker_profile(session_or_ip: str):
         "status": "success",
         "dossier": profile.to_dict()
     }
+
+
+# ===================================================================
+# Company Server Clone Provisioning (Honeypot-as-a-Service)
+# ===================================================================
+
+@api_router.get("/clone/status")
+async def clone_status():
+    """Returns active company clone profile if provisioned."""
+    from honeypot.clone.provisioner import CloneProvisioner
+    prov = CloneProvisioner()
+    active = prov.load_active_profile()
+    return {
+        "clone_active": active is not None,
+        "profile": active.to_dict() if active else None,
+        "all_profiles": prov.list_profiles(),
+        "gateway_mode": "DECEPTION_PERIMETER",
+        "production_isolated": True,
+    }
+
+
+@api_router.post("/clone/provision")
+async def clone_provision(request: Request):
+    """
+    Provision a new sanitized company server clone.
+    Body: {"company_name": "Acme Corp", "domain": "acme.com", "backend_url": "..."}
+    """
+    from honeypot.clone.provisioner import CloneProvisioner
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    company = body.get("company_name") or body.get("company")
+    domain = body.get("domain")
+    if not company or not domain:
+        return JSONResponse({"error": "company_name and domain required"}, status_code=400)
+
+    profile = CloneProvisioner().provision(
+        company_name=company,
+        domain=domain,
+        services=body.get("services", ["ssh", "web", "api"]),
+        backend_url=body.get("backend_url", settings.BACKEND_URL),
+    )
+    CloneProvisioner().apply_to_settings()
+    return {"status": "provisioned", "profile": profile.to_dict(), "message": "Restart honeypot to fully apply branding"}
 

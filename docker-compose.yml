@@ -1,5 +1,6 @@
 services:
-  # Honeypot Deception Server (Member 1 - Ports 2222 & 8080)
+  # Honeypot Deception Server — deploy on Google Cloud VM
+  # Backend stays on Render: https://kurukshetra-backend.onrender.com
   honeypot-server:
     build:
       context: .
@@ -7,7 +8,7 @@ services:
     container_name: kurukshetra-honeypot
     restart: unless-stopped
     ports:
-      - "2222:2222"   # SSH Honeypot
+      - "2222:2222"   # SSH Honeypot (NOT port 22)
       - "8080:8080"   # Web & API Honeypot
     env_file:
       - .env
@@ -23,22 +24,15 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./reports:/app/reports
+      - ./clone_profiles:/app/clone_profiles
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  # Local Mock Backend (Optional fallback for offline/local testing on Port 8000)
-  mock-backend:
-    build:
-      context: .
-      dockerfile: honeypot/docker/Dockerfile
-    container_name: kurukshetra-mock-backend
-    restart: unless-stopped
-    command: ["python", "mock_backend.py"]
-    environment:
-      - TZ=Asia/Kolkata
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./logs:/app/logs
-      - ./reports:/app/reports
+
 

@@ -1,0 +1,42 @@
+KURUKSHETRA — HACKATHON DEPLOYMENT (Tonight Checklist)
+======================================================
+
+ARCHITECTURE
+  Google Cloud VM  → Honeypot (SSH:2222, Web:8080)
+  Render           → Backend (already live)
+  Vercel           → SOC Dashboard (frontend)
+
+STEP 1 — GCP VM (Honeypot)
+  1. Create Ubuntu 22.04 VM (e2-small is enough)
+  2. Open firewall: TCP 2222, 8080 (NOT 22 for honeypot)
+  3. Upload project OR git clone
+  4. Run: bash deploy/gcp-vm-setup.sh
+  5. Note external IP → use in attacks
+
+STEP 2 — Backend (Render) — ALREADY DONE
+  URL: https://kurukshetra-backend.onrender.com/health
+
+STEP 3 — Frontend (Vercel)
+  cd Kurukshetra-frontend && npm run build && deploy
+  Dashboard auto-connects to Render backend
+
+STEP 4 — Company Clone (optional demo wow)
+  python provision_clone.py --company "Acme Corp" --domain acme.com
+  OR POST http://VM_IP:8080/api/clone/provision
+       {"company_name":"Acme Corp","domain":"acme.com"}
+
+STEP 5 — LIVE DEMO (3 terminals)
+  Terminal 1 (GCP VM): docker compose up   OR   python main.py
+  Terminal 2 (Parrot): python attack.py --target VM_IP --scenario mixed --loop
+  Terminal 3 (Browser): Open SOC Dashboard → Live Attacks
+
+  OR one-click: Dashboard → "Simulate Attack" button
+
+STEP 6 — Fill dashboard with data before judges arrive
+  cd Kurukshetra-Backend && python simulate.py
+
+QUICK COMMANDS
+  Full demo:     python demo_launcher.py --target YOUR_VM_IP
+  E2E test:      python run_e2e_test.py
+  Attack only:   python attack.py -t VM_IP -s mixed --loop
+  Clone status:  curl http://VM_IP:8080/api/clone/status

@@ -101,15 +101,15 @@ async def telemetry_middleware(request: Request, call_next):
     if path in silent_paths or path.startswith("/api/clone/"):
         return response
 
-    # Prevent duplicate telemetry: let dedicated route handlers emit rich decoy/auth events
+    # Prevent false attack telemetry on benign portal viewing:
     handled_by_route = (
-        (method == "POST" and path == "/login") or
+        path in ("/", "/login", "/health", "/favicon.ico") or
         path.startswith("/fake-") or
-        path in ("/admin", "/dashboard", "/.env", "/config", "/users", "/backup", "/credentials", "/favicon.ico")
+        path in ("/admin", "/dashboard", "/.env", "/config", "/users", "/backup", "/credentials")
     )
 
     if not handled_by_route:
-        # Emit structured http_request telemetry for general probes, scans, and crawler hits
+        # Emit structured http_request telemetry ONLY for suspicious probes, 404 scans, or crawler hits
         emit_event(
             service="web",
             event_type="http_request",

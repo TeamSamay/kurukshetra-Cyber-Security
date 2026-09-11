@@ -93,15 +93,23 @@ async def telemetry_middleware(request: Request, call_next):
         "content_type": headers_dict.get("content-type", ""),
     }
 
-    # Emit structured http_request telemetry
-    emit_event(
-        service="web",
-        event_type="http_request",
-        event=f"{method} {path} HTTP/{request.scope.get('http_version', '1.1')} -> {status_code}",
-        source_ip=client_ip,
-        session_id=session_id,
-        metadata=metadata,
+    # Prevent duplicate telemetry: let dedicated route handlers emit rich decoy/auth events
+    handled_by_route = (
+        (method == "POST" and path == "/login") or
+        path.startswith("/fake-") or
+        path in ("/admin", "/dashboard", "/.env", "/config", "/users", "/backup", "/credentials", "/favicon.ico")
     )
+
+    if not handled_by_route and path != "/favicon.ico":
+        # Emit structured http_request telemetry for general probes, scans, and crawler hits
+        emit_event(
+            service="web",
+            event_type="http_request",
+            event=f"{method} {path} HTTP/{request.scope.get('http_version', '1.1')} -> {status_code}",
+            source_ip=client_ip,
+            session_id=session_id,
+            metadata=metadata,
+        )
 
     return response
 

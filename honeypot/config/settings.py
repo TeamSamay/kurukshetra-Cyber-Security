@@ -59,6 +59,10 @@ class Settings(BaseSettings):
     WEB_TITLE: str = "Internal Corporate Enterprise Portal"
     FAKE_JWT_SECRET: str = "c3VwZXItc2VjcmV0LWtleS1kb25vdC1zaGFyZQ=="
 
+    # Groq LLM & AI Threat Intelligence
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+
     model_config = SettingsConfigDict(
         env_file=(".env", "config.env", "honeypot/config/config.env"),
         env_file_encoding="utf-8",

@@ -31,7 +31,7 @@ class BackendClient:
         max_queue_size: Optional[int] = None,
         retry_interval: Optional[float] = None,
     ):
-        self.backend_url = (backend_url or settings.full_backend_events_url).rstrip("/")
+        self._custom_backend_url = backend_url
         self.base_url = settings.BACKEND_URL.rstrip("/")
         self.timeout = timeout or settings.BACKEND_TIMEOUT_SEC
         self.retry_interval = retry_interval or settings.BACKEND_RETRY_INTERVAL_SEC
@@ -48,6 +48,16 @@ class BackendClient:
         self.total_failed = 0
         self.total_queued = 0
         self.last_delivery_status = "INITIALIZING"
+
+    @property
+    def backend_url(self) -> str:
+        if self._custom_backend_url:
+            return self._custom_backend_url.rstrip("/")
+        return settings.full_backend_events_url.rstrip("/")
+
+    @backend_url.setter
+    def backend_url(self, val: Optional[str]):
+        self._custom_backend_url = val
 
     def start(self) -> None:
         """Starts the background worker thread and keepalive pinger."""

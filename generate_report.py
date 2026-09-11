@@ -1,7 +1,8 @@
 """
 Threat Intelligence Report Generator (Kurukshetra 2.0).
 Analyzes honeypot telemetry from logs/events.jsonl and generates an executive
-SOC Threat Intelligence & Forensics Report with MITRE ATT&CK mappings and Risk Scoring.
+SOC Threat Intelligence & Forensics Report with MITRE ATT&CK mappings, Risk Scoring,
+and Groq LLM AI Threat Insights & Defensive Playbooks.
 """
 
 import os
@@ -14,11 +15,16 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+# Ensure project root in sys.path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+from honeypot.common.ai_advisor import ai_advisor
+
 console = Console(legacy_windows=False)
 
 
 def analyze_telemetry(log_file: str = "logs/events.jsonl") -> Dict[str, Any]:
-    """Reads telemetry events and performs forensic threat intelligence analysis."""
+    """Reads telemetry events and performs forensic threat intelligence analysis with AI integration."""
     events: List[Dict[str, Any]] = []
     if os.path.exists(log_file):
         with open(log_file, "r", encoding="utf-8") as f:
@@ -106,7 +112,7 @@ def analyze_telemetry(log_file: str = "logs/events.jsonl") -> Dict[str, Any]:
     max_risk = max([d["risk_score"] for d in attackers.values()]) if attackers else 0
     overall_severity = "CRITICAL" if max_risk >= 75 else ("HIGH" if max_risk >= 50 else ("MEDIUM" if max_risk > 20 else "LOW"))
 
-    return {
+    base_report = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "total_events": total_events,
         "overall_risk_score": max_risk,
@@ -122,9 +128,18 @@ def analyze_telemetry(log_file: str = "logs/events.jsonl") -> Dict[str, Any]:
         "mitre_mappings": sorted(list(mitre_mappings)),
     }
 
+    # Fetch Groq AI Threat Intelligence & Actionable Suggestions
+    ai_insights = ai_advisor.analyze_threat_landscape(events, base_report)
+    ai_summary = ai_advisor.generate_executive_summary(base_report)
+
+    base_report["ai_insights"] = ai_insights
+    base_report["ai_executive_summary"] = ai_summary
+
+    return base_report
+
 
 def generate_html_report(report_data: Dict[str, Any], output_path: str = "reports/threat_intelligence_report.html") -> str:
-    """Renders a stunning executive cyber threat intelligence report HTML."""
+    """Renders a stunning executive cyber threat intelligence report HTML with AI insights."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     attacker_rows = ""
@@ -151,6 +166,24 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
     for f in report_data["files_tampered"][-10:]:
         file_rows += f"<tr><td><code>{f['ip']}</code></td><td><strong>{f['action']}</strong></td><td><code>{f['path']}</code></td></tr>"
 
+    ai_data = report_data.get("ai_insights", {})
+    ai_model = ai_data.get("model_used", "Groq AI Threat Engine")
+    ai_summary = report_data.get("ai_executive_summary", "")
+
+    recs_html = ""
+    for rec in ai_data.get("recommendations", []):
+        prio_color = "#f43f5e" if rec.get("priority") == "CRITICAL" else ("#fbbf24" if rec.get("priority") == "HIGH" else "#38bdf8")
+        recs_html += f"""
+        <li style="margin-bottom:12px;">
+            <strong style="color:{prio_color};">[{rec.get('priority', 'INFO')}] {rec.get('title', '')}:</strong>
+            <span style="color:#cbd5e1;"> {rec.get('action', '')}</span>
+        </li>
+        """
+
+    fw_html = ""
+    for cmd in ai_data.get("firewall_rules", []):
+        fw_html += f"<code>{cmd}</code><br style='margin-bottom:6px;'>"
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -165,18 +198,22 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
             --red: #f43f5e;
             --green: #10b981;
             --yellow: #fbbf24;
+            --purple: #a855f7;
             --text: #f3f4f6;
             --dim: #94a3b8;
         }}
         * {{ box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
         body {{ background: var(--bg); color: var(--text); padding: 32px; margin: 0; line-height: 1.5; }}
         .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }}
-        h1 {{ margin: 0; color: var(--blue); font-size: 1.8rem; }}
+        h1 {{ margin: 0; color: var(--blue); font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }}
         .meta-text {{ color: var(--dim); font-size: 0.9rem; margin-top: 4px; }}
         .grid-stats {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }}
         .card {{ background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }}
         .card-title {{ color: var(--dim); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }}
         .card-num {{ font-size: 2.2rem; font-weight: 800; color: #fff; }}
+        
+        .ai-banner {{ background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(56, 189, 248, 0.1)); border: 1px solid #9333ea; border-radius: 12px; padding: 22px; margin-bottom: 28px; }}
+        .ai-badge {{ background: #9333ea; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }}
         
         table {{ width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 28px; }}
         th, td {{ padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }}
@@ -190,7 +227,7 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
         .mitre-item {{ background: #0f172a; border: 1px solid #334155; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; }}
         .mitre-item strong {{ color: var(--blue); }}
         
-        code {{ color: var(--blue); font-family: monospace; background: #090d16; padding: 2px 6px; border-radius: 4px; }}
+        code {{ color: #38bdf8; font-family: monospace; background: #090d16; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; border: 1px solid #1e293b; }}
         .btn-print {{ background: var(--blue); color: #0b0f19; font-weight: bold; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }}
         @media print {{ .btn-print {{ display: none; }} body {{ background: #fff; color: #000; }} table, .card {{ border-color: #ccc; background: #fff; }} }}
     </style>
@@ -199,10 +236,32 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
     <div class="header">
         <div>
             <h1>🛡️ Kurukshetra 2.0 Threat Intelligence &amp; Forensics Report</h1>
-            <div class="meta-text">Generated on: <strong>{report_data['generated_at']}</strong> &bull; Honeypot Telemetry Source</div>
+            <div class="meta-text">Generated on: <strong>{report_data['generated_at']}</strong> &bull; Honeypot Telemetry Ingestion Source</div>
         </div>
         <div>
             <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        </div>
+    </div>
+
+    <!-- Groq AI Executive Briefing -->
+    <div class="ai-banner">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="ai-badge">🤖 Groq AI CISO Executive Briefing</span>
+                <span style="color:var(--dim); font-size:0.8rem;">Engine: {ai_model}</span>
+            </div>
+            <span style="color:#10b981; font-weight:700; font-size:0.85rem;">● Real-time AI Forensics</span>
+        </div>
+        <p style="font-size:1.05rem; color:#f8fafc; line-height:1.6; margin:0 0 16px 0;">
+            {ai_summary}
+        </p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <span style="background:rgba(56, 189, 248, 0.15); border:1px solid #38bdf8; color:#38bdf8; padding:4px 10px; border-radius:6px; font-size:0.8rem; font-weight:700;">
+                Attack Vectors: {', '.join(ai_data.get('attack_vectors', [])) or 'Reconnaissance'}
+            </span>
+            <span style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#34d399; padding:4px 10px; border-radius:6px; font-size:0.8rem; font-weight:700;">
+                Trap Assessment: {ai_data.get('deception_assessment', 'Decoys Operational')}
+            </span>
         </div>
     </div>
 
@@ -223,6 +282,23 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
             <div class="card-title">Decoys Tripped</div>
             <div class="card-num" style="color: var(--red);">{len(report_data['decoys_tripped'])}</div>
         </div>
+    </div>
+
+    <!-- AI Tactical Recommendations & Playbooks -->
+    <div class="card" style="margin-bottom: 28px;">
+        <div class="card-title" style="color:#38bdf8; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+            ⚡ Groq AI Actionable Defense &amp; Mitigation Playbooks
+        </div>
+        <ul style="padding-left: 20px; font-size: 0.95rem; margin-top: 14px;">
+            {recs_html if recs_html else "<li>No immediate critical mitigations required. Continue passive monitoring.</li>"}
+        </ul>
+
+        {f'''
+        <div style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px;">
+            <div style="color: #fbbf24; font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">⚡ Automated Firewall Containment Commands (Linux/iptables):</div>
+            {fw_html}
+        </div>
+        ''' if fw_html else ''}
     </div>
 
     <h2>🎯 MITRE ATT&amp;CK Framework Mappings (Observed Evidence)</h2>
@@ -274,15 +350,6 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
             {file_rows if file_rows else "<tr><td colspan='3'>No file tampering recorded.</td></tr>"}
         </tbody>
     </table>
-
-    <div class="card" style="margin-top: 20px;">
-        <div class="card-title">🛡️ Automated AI Defensive Recommendations</div>
-        <ol style="margin-left: 20px; font-size: 0.9rem; color: #cbd5e1;">
-            <li><strong>Isolate Attacker Source IPs:</strong> Block identified malicious IPs (e.g. <code>{', '.join(report_data['attackers'].keys()) if report_data['attackers'] else 'None'}</code>) at edge firewall.</li>
-            <li><strong>Rotate Compromised Deception Secrets:</strong> Audit and invalidate all credentials probed by threat actors (Root SSH keys, PostgreSQL passwords, AWS tokens).</li>
-            <li><strong>Enforce Zero-Trust MFA:</strong> Restrict administrative access to SSH and internal SSO endpoints.</li>
-        </ol>
-    </div>
 </body>
 </html>
 """
@@ -298,7 +365,7 @@ def generate_html_report(report_data: Dict[str, Any], output_path: str = "report
 
 
 def main():
-    console.print(Panel("[bold cyan]Kurukshetra 2.0 Threat Intelligence Report Generator[/bold cyan]"))
+    console.print(Panel("[bold cyan]Kurukshetra 2.0 Threat Intelligence Report Generator with Groq AI[/bold cyan]"))
     data = analyze_telemetry()
     out = generate_html_report(data)
     console.print(f"[bold green][OK] Executive Threat Report Generated Successfully![/bold green]")

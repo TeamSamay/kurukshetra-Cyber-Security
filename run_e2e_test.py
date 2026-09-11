@@ -80,16 +80,17 @@ def run_e2e_test():
                 pass
     received_events.clear()
 
-    # 1. Start Mock Backend Server in thread (port 8000)
-    backend_config = uvicorn.Config(app=mock_backend_app, host="127.0.0.1", port=8000, log_level="warning")
+    # 1. Start Mock Backend Server in thread (port 8888)
+    backend_config = uvicorn.Config(app=mock_backend_app, host="127.0.0.1", port=8888, log_level="warning")
     backend_server = uvicorn.Server(backend_config)
     backend_thread = threading.Thread(target=backend_server.run, daemon=True)
     backend_thread.start()
 
     # 2. Configure Honeypot to point to Mock Backend
-    settings.BACKEND_URL = "http://127.0.0.1:8000"
+    settings.BACKEND_URL = "http://127.0.0.1:8888"
     settings.BACKEND_EVENT_ENDPOINT = "/api/events"
-    backend_client.backend_url = "http://127.0.0.1:8000/api/events"
+    backend_client.backend_url = "http://127.0.0.1:8888/api/events"
+    backend_client.timeout = 2.0
     backend_client.start()
 
     # 3. Start Honeypot SSH Server (port 2222)
@@ -103,8 +104,8 @@ def run_e2e_test():
     web_thread.start()
 
     # Wait for all services to become ready
-    console.print("[cyan][*] Waiting for services to bind ports (8000, 8080, 2222)...[/cyan]")
-    assert wait_for_port(8000), "Mock Backend failed to start on port 8000"
+    console.print("[cyan][*] Waiting for services to bind ports (8888, 8080, 2222)...[/cyan]")
+    assert wait_for_port(8888), "Mock Backend failed to start on port 8888"
     assert wait_for_port(8080), "Web/API Honeypot failed to start on port 8080"
     assert wait_for_port(2222), "SSH Honeypot failed to start on port 2222"
     console.print("[green][OK] All services active and listening![/green]\n")
@@ -117,7 +118,10 @@ def run_e2e_test():
 
     # 6. Allow event queue to flush to backend
     console.print("[cyan][*] Waiting for async backend forwarding queue to flush...[/cyan]")
-    time.sleep(2)
+    start_wait = time.time()
+    while not backend_client._queue.empty() and (time.time() - start_wait) < 8.0:
+        time.sleep(0.1)
+    time.sleep(1.0)
 
     # 7. Verification & Schema Validation
     console.print("\n[bold cyan]=== RUNNING AUDIT & VALIDATION CHECKS ===[/bold cyan]")
@@ -140,7 +144,7 @@ def run_e2e_test():
 
     console.print(f"[green][OK] Local JSONL Log: {len(local_events)} valid events parsed from {log_file}[/green]")
 
-    # Check 2: Schema compliance of all 9 fields
+    # Check 2: Check standard required fields
     for evt in local_events:
         d = evt.to_dict()
         for rf in REQUIRED_FIELDS:
@@ -160,7 +164,12 @@ def run_e2e_test():
     console.print(f"[green][OK] Decoy Triggers: {len(decoy_events)} decoy alarms tripped and recorded[/green]")
 
     # Check 5: Verify Backend Delivery
-    backend_count = len(received_events)
+    try:
+        with httpx.Client(timeout=3.0) as cl:
+            r = cl.get("http://127.0.0.1:8888/api/events")
+            backend_count = r.json().get("total_events", 0)
+    except Exception:
+        backend_count = len(received_events)
     console.print(f"[green][OK] Backend Ingestion: {backend_count} events successfully received at POST /api/events[/green]")
     assert backend_count > 0, "Backend received 0 events!"
 

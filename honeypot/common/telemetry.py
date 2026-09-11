@@ -9,6 +9,7 @@ from typing import Optional, Dict, Any
 from honeypot.common.event_schema import HoneypotEvent, create_event
 from honeypot.common.event_logger import default_logger
 from honeypot.common.backend_client import backend_client
+from honeypot.common.threat_learning_engine import threat_engine
 from honeypot.config.settings import settings
 
 
@@ -22,9 +23,30 @@ def emit_event(
     metadata: Optional[Dict[str, Any]] = None,
 ) -> HoneypotEvent:
     """
-    Creates, validates, locally persists, and asynchronously transmits
-    a structured honeypot telemetry event.
+    Analyzes attack interaction, enriches with MITRE TTPs & tool detection,
+    creates validated event, locally logs, and asynchronously transmits to Render backend.
     """
+    combined_meta = dict(metadata or {})
+    
+    # Analyze interaction through Threat Learning Engine ("Game Bajaye")
+    try:
+        intel = threat_engine.analyze_interaction(
+            service=service,
+            event_type=event_type,
+            payload=event,
+            source_ip=source_ip,
+            session_id=session_id,
+            raw_metadata=combined_meta,
+        )
+        combined_meta["threat_intel"] = intel
+        combined_meta["mitre_tactics"] = intel.get("attack_phases", [])
+        combined_meta["detected_tools"] = intel.get("detected_tools", [])
+        combined_meta["attacker_skill"] = intel.get("attacker_skill_level", "NOVICE")
+        combined_meta["attacker_intent"] = intel.get("attacker_intent", "RECON")
+        combined_meta["risk_score"] = intel.get("threat_risk_score", 10)
+    except Exception:
+        pass
+
     evt = create_event(
         service=service,
         event_type=event_type,
@@ -32,13 +54,14 @@ def emit_event(
         source_ip=source_ip,
         session_id=session_id,
         target_ip=target_ip or settings.HONEYPOT_TARGET_IP,
-        metadata=metadata or {},
+        metadata=combined_meta,
     )
 
     # 1. Thread-safe Local File & Console Logging
     default_logger.log(evt)
 
-    # 2. Asynchronous Non-blocking Backend Dispatch
+    # 2. Asynchronous Non-blocking Backend Dispatch to Render Backend
     backend_client.send_event(evt)
 
     return evt
+

@@ -142,12 +142,51 @@ def simulate_api_attack(host: str = "127.0.0.1", port: int = 8080):
     console.print("[bold green][+] API Attack scenario completed successfully![/bold green]\n")
 
 
+def simulate_advanced_threat_learning(host: str = "127.0.0.1", port: int = 8080):
+    console.print(Panel(f"[bold red]Scenario 4: Advanced Exploitation & Tool Fingerprinting Test[/bold red]\nTarget: http://{host}:{port}", expand=False))
+    base_url = f"http://{host}:{port}"
+
+    with httpx.Client(base_url=base_url, timeout=5.0) as client:
+        # 1. Simulate Sqlmap SQL Injection attack
+        console.print("[yellow][*] Simulating Sqlmap automated SQLi payload against /login...[/yellow]")
+        r_sqli = client.post(
+            "/login",
+            data={"username": "admin' UNION SELECT null, database(), user() --", "password": "' OR '1'='1"},
+            headers={"User-Agent": "sqlmap/1.7.2#stable (https://sqlmap.org)"}
+        )
+        console.print(f"    SQLi Probe status: HTTP {r_sqli.status_code}")
+
+        # 2. Simulate Hydra Brute-Force tool User-Agent
+        console.print("[yellow][*] Simulating Hydra brute force probe...[/yellow]")
+        r_hydra = client.post(
+            "/api/login",
+            json={"username": "root", "password": "password123"},
+            headers={"User-Agent": "Mozilla/5.0 (compatible; Hydra/9.5)"}
+        )
+        console.print(f"    Hydra probe status: HTTP {r_hydra.status_code}")
+
+        # 3. Query Live Threat Intelligence from Honeypot
+        console.print("\n[bold cyan][*] Querying Honeypot Learned Attacker Intelligence (/api/threat-intel)...[/bold cyan]")
+        try:
+            r_intel = client.get("/api/threat-intel")
+            if r_intel.status_code == 200:
+                intel_data = r_intel.json()
+                console.print(f"    [green]Total Attackers Tracked: {intel_data.get('total_attackers_tracked')}[/green]")
+                for atk in intel_data.get("attackers", []):
+                    console.print(f"    [bold yellow]• Attacker IP/Session:[/bold yellow] {atk.get('identifier')} | [bold red]Risk:[/bold red] {atk.get('risk_score')}/100")
+                    console.print(f"      [cyan]Skill Level:[/cyan] {atk.get('skill_level')} | [cyan]Intent:[/cyan] {atk.get('intent')}")
+                    console.print(f"      [magenta]Detected Tools:[/magenta] {atk.get('detected_tools')}")
+                    console.print(f"      [blue]MITRE Techniques:[/blue] {[t['technique_id'] + ': ' + t['name'] for t in atk.get('mitre_techniques', [])]}")
+        except Exception as e:
+            console.print(f"[dim red]Threat intel query failed: {e}[/dim red]")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Kurukshetra Attacker Simulator (Member 2 Tool)")
     parser.add_argument("--host", default="127.0.0.1", help="Target Honeypot IP/Host")
     parser.add_argument("--ssh-port", type=int, default=2222, help="Honeypot SSH Port")
     parser.add_argument("--web-port", type=int, default=8080, help="Honeypot Web/API Port")
-    parser.add_argument("--target", choices=["all", "ssh", "web", "api"], default="all", help="Attack scenario to run")
+    parser.add_argument("--target", choices=["all", "ssh", "web", "api", "threat"], default="all", help="Attack scenario to run")
     args = parser.parse_args()
 
     console.print(f"[bold cyan]=== Kurukshetra Honeypot Attacker Simulation Suite ===[/bold cyan]")
@@ -159,9 +198,12 @@ def main():
         simulate_web_attack(args.host, args.web_port)
     if args.target in ("all", "api"):
         simulate_api_attack(args.host, args.web_port)
+    if args.target in ("all", "threat"):
+        simulate_advanced_threat_learning(args.host, args.web_port)
 
     console.print("[bold green]=== All Simulation Scenarios Completed! ===[/bold green]")
 
 
 if __name__ == "__main__":
     main()
+

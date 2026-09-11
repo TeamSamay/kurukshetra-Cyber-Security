@@ -9,13 +9,15 @@ services:
     ports:
       - "2222:2222"   # SSH Honeypot
       - "8080:8080"   # Web & API Honeypot
+    env_file:
+      - .env
     environment:
       - TZ=Asia/Kolkata
       - HONEYPOT_HOST=0.0.0.0
       - SSH_PORT=2222
       - WEB_PORT=8080
-      - BACKEND_URL=${BACKEND_URL:-https://kurukshetra-backend.onrender.com}
-      - BACKEND_EVENT_ENDPOINT=${BACKEND_EVENT_ENDPOINT:-/api/events}
+      - BACKEND_URL=https://kurukshetra-backend.onrender.com
+      - BACKEND_EVENT_ENDPOINT=/api/events
       - HONEYPOT_HOSTNAME=corp-app-prod01
       - SSH_AUTH_MODE=accept_all
     volumes:

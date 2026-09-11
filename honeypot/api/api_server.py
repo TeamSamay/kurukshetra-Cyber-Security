@@ -246,3 +246,32 @@ async def api_swagger(request: Request):
             "/fake-credentials": {"get": {"summary": "Infrastructure Secrets Vault"}}
         }
     }
+
+
+# ===================================================================
+# Live Threat Intelligence & Attacker Technique Forensics
+# ===================================================================
+
+@api_router.get("/threat-intel")
+async def get_live_threat_intelligence():
+    """Returns aggregated threat intelligence and learned techniques from all attackers."""
+    from honeypot.common.threat_learning_engine import threat_engine
+    dossiers = threat_engine.get_all_attacker_dossiers()
+    return {
+        "status": "active",
+        "total_attackers_tracked": len(dossiers),
+        "backend_target": settings.BACKEND_URL,
+        "attackers": dossiers,
+    }
+
+
+@api_router.get("/threat-intel/{session_or_ip}")
+async def get_attacker_profile(session_or_ip: str):
+    """Returns deep threat forensic dossier for a specific attacker IP or session."""
+    from honeypot.common.threat_learning_engine import threat_engine
+    profile = threat_engine.get_or_create_profile(session_or_ip)
+    return {
+        "status": "success",
+        "dossier": profile.to_dict()
+    }
+

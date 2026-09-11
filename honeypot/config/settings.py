@@ -33,12 +33,13 @@ class Settings(BaseSettings):
     WEB_PORT: int = 8080
     API_PORT: int = 8080
     
-    # Backend Configuration (Member 3)
-    BACKEND_URL: str = "http://localhost:8000"
+    # Backend Configuration (Member 3 Live Render Backend)
+    BACKEND_URL: str = "https://kurukshetra-backend.onrender.com"
     BACKEND_EVENT_ENDPOINT: str = "/api/events"
     BACKEND_RETRY_INTERVAL_SEC: float = 5.0
     BACKEND_MAX_QUEUE_SIZE: int = 5000
-    BACKEND_TIMEOUT_SEC: float = 4.0
+    BACKEND_TIMEOUT_SEC: float = 8.0
+    BACKEND_KEEPALIVE_INTERVAL_SEC: float = 300.0  # Ping Render backend every 5 minutes to prevent sleep
     
     # Local Storage
     LOG_DIR: str = "logs"

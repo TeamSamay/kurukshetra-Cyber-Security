@@ -86,7 +86,7 @@ class HoneypotSSHInterface(paramiko.ServerInterface):
 
         event_type = "auth_success" if allowed else "auth_failure"
 
-        # Emit auth attempt telemetry
+        # Emit auth attempt telemetry (automatically analyzed by Threat Learning Engine)
         emit_event(
             service="ssh",
             event_type=event_type,
@@ -100,6 +100,10 @@ class HoneypotSSHInterface(paramiko.ServerInterface):
                 "auth_success": allowed,
             }
         )
+
+        # Adaptive Counter-Deception ("Game Bajaye"): Slow down brute-forcers
+        from honeypot.common.threat_learning_engine import threat_engine
+        threat_engine.apply_tarpit(self.client_ip, self.session_id)
 
         if allowed:
             self.authenticated_user = username

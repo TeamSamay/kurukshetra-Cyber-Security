@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honeypot-config
+  namespace: kurukshetra-deception
+data:
+  HONEYPOT_HOST: "0.0.0.0"
+  SSH_PORT: "2222"
+  WEB_PORT: "8080"
+  HONEYPOT_HOSTNAME: "corp-app-prod01"
+  SSH_AUTH_MODE: "accept_all"
+  BACKEND_EVENT_ENDPOINT: "/api/events"

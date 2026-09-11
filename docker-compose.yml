@@ -1,0 +1,42 @@
+services:
+  # Honeypot Deception Server (Member 1 - Ports 2222 & 8080)
+  honeypot-server:
+    build:
+      context: .
+      dockerfile: honeypot/docker/Dockerfile
+    container_name: kurukshetra-honeypot
+    restart: unless-stopped
+    ports:
+      - "2222:2222"   # SSH Honeypot
+      - "8080:8080"   # Web & API Honeypot
+    environment:
+      - TZ=Asia/Kolkata
+      - HONEYPOT_HOST=0.0.0.0
+      - SSH_PORT=2222
+      - WEB_PORT=8080
+      - BACKEND_URL=${BACKEND_URL:-https://kurukshetra-backend.onrender.com}
+      - BACKEND_EVENT_ENDPOINT=${BACKEND_EVENT_ENDPOINT:-/api/events}
+      - HONEYPOT_HOSTNAME=corp-app-prod01
+      - SSH_AUTH_MODE=accept_all
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Local Mock Backend (Optional fallback for offline/local testing on Port 8000)
+  mock-backend:
+    build:
+      context: .
+      dockerfile: honeypot/docker/Dockerfile
+    container_name: kurukshetra-mock-backend
+    restart: unless-stopped
+    command: ["python", "mock_backend.py"]
+    environment:
+      - TZ=Asia/Kolkata
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+

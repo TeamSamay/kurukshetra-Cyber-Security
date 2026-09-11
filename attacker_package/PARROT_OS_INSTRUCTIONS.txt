@@ -1,0 +1,69 @@
+========================================================================
+KURUKSHETRA 2.0 — ATTACKER SIMULATOR (MEMBER 2 INSTRUCTIONS)
+========================================================================
+
+Dear Member 2 (Attacker Laptop / Parrot OS):
+
+Follow these exact steps to connect to Member 1's Honeypot and generate
+controlled threat telemetry for the Hackathon judges.
+
+------------------------------------------------------------------------
+STEP 1: NETWORK VERIFICATION (Check Wi-Fi Reachability)
+------------------------------------------------------------------------
+Open your Parrot OS Terminal and run:
+
+    ping 10.113.202.185
+
+If you receive replies (e.g., 64 bytes from 10.113.202.185), connection is ACTIVE!
+
+------------------------------------------------------------------------
+STEP 2: INSTALL PYTHON DEPENDENCIES ON PARROT OS
+------------------------------------------------------------------------
+Inside this attacker folder, run:
+
+    pip install -r requirements.txt
+
+(Or if on Parrot OS / Debian):
+    pip install httpx paramiko rich --break-system-packages
+
+------------------------------------------------------------------------
+STEP 3: RUNNING CONTROLLED ATTACKS AGAINST HONEYPOT
+------------------------------------------------------------------------
+
+1. MASTER DEMO (MIXED ATTACK - RUN THIS FOR JUDGES):
+   Runs Web Recon -> API Token Extraction -> SSH Shell -> Decoy Traps:
+
+       python3 attack.py --target 10.113.202.185 --scenario mixed
+
+2. SSH ATTACK ONLY (Brute Force + Shell Commands + Decoys):
+
+       python3 attack.py --target 10.113.202.185 --scenario ssh
+
+3. WEB ATTACK ONLY (Robots.txt + Login Brute Force + Decoys):
+
+       python3 attack.py --target 10.113.202.185 --scenario web
+
+4. API ATTACK ONLY (Swagger Discovery + JWT Exfiltration):
+
+       python3 attack.py --target 10.113.202.185 --scenario api
+
+5. CONTINUOUS ATTACK LOOP (Keeps live attacks hitting the SOC Dashboard):
+
+       python3 attack.py --target 10.113.202.185 --scenario mixed --loop
+
+------------------------------------------------------------------------
+STEP 4: MANUAL ATTACKS (OPTIONAL LIVE TERMINAL PROVING)
+------------------------------------------------------------------------
+You can also manually attack directly from your Parrot OS tools:
+
+- SSH Manual Trap:
+    ssh root@10.113.202.185 -p 2222
+    (Password: toor)
+    Inside shell, run: cat /root/fake-credentials.txt
+
+- Web Manual Browser:
+    Open Firefox in Parrot OS: http://10.113.202.185:8080/login
+
+- Nmap Scan:
+    nmap -sV -p 2222,8080 10.113.202.185
+========================================================================

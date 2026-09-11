@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security - SuperAdmin Console</title>
+    <!-- Deception Hook: Accessing any administrative dump triggers SOC notification -->
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent: #38bdf8;
+            --danger: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; }
+
+        header { background: #090d16; border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .user-badge { background: #1e1b4b; border: 1px solid #4338ca; color: #a5b4fc; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; width: 100%; flex: 1; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 24px; }
+        
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .stat-num { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+        
+        .btn { display: inline-block; padding: 10px 16px; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem; cursor: pointer; border: none; margin-right: 8px; margin-bottom: 8px; transition: all 0.2s; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-accent { background: var(--accent); color: #0f172a; }
+        .btn-warning { background: var(--warning); color: #0f172a; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-light); }
+
+        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        .table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.9rem; }
+        .table th, .table td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        .table th { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; }
+
+        .status-pill { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .status-online { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-critical { background: rgba(244, 63, 94, 0.2); color: #fb7185; }
+
+        code { background: #090d16; padding: 3px 6px; border-radius: 4px; font-family: monospace; color: #38bdf8; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>&#9889;</span> Enterprise Security &amp; Core Control Matrix
+        </div>
+        <div>
+            <span class="user-badge">&#128100; Authenticated: {{ username or 'Administrator' }} [SUPERUSER]</span>
+            <a href="/login" class="btn btn-outline" style="margin-left: 12px;">Sign Out</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div style="margin-bottom: 8px; color: var(--text-dim); font-size: 0.9rem;">
+            Cluster Node: <code>{{ hostname }} ({{ target_ip }})</code> | Status: <span class="status-pill status-online">ALL SYSTEMS ACTIVE</span>
+        </div>
+        <h1 style="font-size: 1.8rem; font-weight: 700;">Infrastructure SuperAdmin Dashboard</h1>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">
+                    <span>Cluster Nodes</span>
+                    <span class="status-pill status-online">Operational</span>
+                </div>
+                <div class="stat-num">6 / 6</div>
+                <p style="color: var(--text-dim); font-size: 0.85rem;">Kubernetes worker nodes in sync. Core database replication lag: 0.12ms.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>Decoy Backups &amp; Dumps</span>
+                    <span class="status-pill status-online">Automated</span>
+                </div>
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Daily full database snapshot ready for export.</p>
+                <a href="/fake-backup" class="btn btn-accent">&#128190; Download Postgres Dump</a>
+                <a href="/fake-users" class="btn btn-outline">&#128101; Export User Directory</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>System Secrets &amp; Config</span>
+                    <span class="status-pill status-critical">Sensitive</span>
+                </div>
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Master environment variables, Stripe API keys, and JWT secrets.</p>
+                <a href="/fake-config" class="btn btn-warning">&#128273; View Production Secrets</a>
+                <a href="/api/config" class="btn btn-outline">&#128295; API Config JSON</a>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-title">
+                <span>Active Core Microservices</span>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Internal Port</th>
+                        <th>Health</th>
+                        <th>Endpoints</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Auth &amp; User Gateway</strong></td>
+                        <td><code>:8080/api/users</code></td>
+                        <td><span class="status-pill status-online">HEALTHY</span></td>
+                        <td><code>/api/users</code>, <code>/api/login</code></td>
+                        <td><a href="/api/users" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">Query API</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Config &amp; Secret Registry</strong></td>
+                        <td><code>:8080/api/config</code></td>
+                        <td><span class="status-pill status-online">HEALTHY</span></td>
+                        <td><code>/api/config</code>, <code>/fake-config</code></td>
+                        <td><a href="/api/config" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">Query API</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primary SQL Database</strong></td>
+                        <td><code>:5432</code></td>
+                        <td><span class="status-pill status-online">HEALTHY</span></td>
+                        <td><code>postgres://corp_admin@10.0.4.15</code></td>
+                        <td><a href="/fake-backup" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">Dump SQL</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

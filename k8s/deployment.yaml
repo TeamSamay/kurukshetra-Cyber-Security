@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: honeypot-deception-server
+  namespace: kurukshetra-deception
+  labels:
+    app: honeypot-server
+    component: deception-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: honeypot-server
+  template:
+    metadata:
+      labels:
+        app: honeypot-server
+    spec:
+      containers:
+      - name: honeypot
+        image: kurukshetra-honeypot:latest
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: honeypot-config
+        env:
+        - name: BACKEND_URL
+          value: "http://backend-service.kurukshetra-deception.svc.cluster.local:8000"
+        ports:
+        - containerPort: 2222
+          name: ssh-deception
+          protocol: TCP
+        - containerPort: 8080
+          name: web-deception
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        securityContext:
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - name: honeypot-logs
+          mountPath: /app/logs
+      volumes:
+      - name: honeypot-logs
+        emptyDir: {}

@@ -1,0 +1,529 @@
+{
+  "generated_at": "2026-09-11 11:10:16 UTC",
+  "total_events": 181,
+  "overall_risk_score": 100,
+  "overall_severity": "CRITICAL",
+  "unique_attackers": 5,
+  "attackers": {
+    "127.0.0.1": {
+      "ip": "127.0.0.1",
+      "sessions": [
+        "ATK-WEB-8F7B818D",
+        "ATK-WEB-C8A6A523",
+        "ATK-WEB-A17E4435",
+        "ATK-SSH-12CEEDB4",
+        "ATK-WEB-72B1DDB4",
+        "ATK-WEB-13E47429",
+        "SYSTEM-BOOT",
+        "ATK-WEB-109BD319",
+        "ATK-WEB-0C81E26C",
+        "ATK-SSH-1286B138",
+        "ATK-WEB-B99C031F",
+        "ATK-WEB-F9419A76",
+        "ATK-SSH-E7E8BAF7",
+        "ATK-WEB-321C270C",
+        "ATK-WEB-EF63A7DF",
+        "ATK-SSH-1E443928",
+        "ATK-WEB-E118FF61"
+      ],
+      "event_count": 72,
+      "services": [
+        "honeypot",
+        "ssh",
+        "web",
+        "api"
+      ],
+      "risk_score": 100,
+      "first_seen": "2026-09-11T09:00:41Z",
+      "last_seen": "2026-09-11T11:03:04Z",
+      "severity": "CRITICAL"
+    },
+    "10.113.202.114": {
+      "ip": "10.113.202.114",
+      "sessions": [
+        "ATK-WEB-23BCCF2A",
+        "ATK-SSH-633EA3BA",
+        "ATK-WEB-20AE22D3",
+        "ATK-WEB-7B9ACFD9"
+      ],
+      "event_count": 16,
+      "services": [
+        "ssh",
+        "web"
+      ],
+      "risk_score": 100,
+      "first_seen": "2026-09-11T09:09:10Z",
+      "last_seen": "2026-09-11T09:35:41Z",
+      "severity": "CRITICAL"
+    },
+    "testclient": {
+      "ip": "testclient",
+      "sessions": [
+        "ATK-WEB-C5983CB7",
+        "ATK-WEB-6172C631"
+      ],
+      "event_count": 9,
+      "services": [
+        "web"
+      ],
+      "risk_score": 45,
+      "first_seen": "2026-09-11T09:22:32Z",
+      "last_seen": "2026-09-11T09:22:39Z",
+      "severity": "MEDIUM"
+    },
+    "10.126.251.114": {
+      "ip": "10.126.251.114",
+      "sessions": [
+        "ATK-SSH-1D89CF4B"
+      ],
+      "event_count": 3,
+      "services": [
+        "ssh"
+      ],
+      "risk_score": 20,
+      "first_seen": "2026-09-11T10:52:12Z",
+      "last_seen": "2026-09-11T10:52:26Z",
+      "severity": "MEDIUM"
+    },
+    "172.18.0.1": {
+      "ip": "172.18.0.1",
+      "sessions": [
+        "ATK-SSH-EDDBE1AF",
+        "ATK-SSH-6200F93F",
+        "ATK-WEB-FD09816D",
+        "ATK-SSH-C1CA035B",
+        "ATK-SSH-C9DD27DA",
+        "ATK-SSH-86AE1A69",
+        "ATK-SSH-FA1A7350",
+        "ATK-WEB-BAD2A78C"
+      ],
+      "event_count": 81,
+      "services": [
+        "ssh",
+        "api",
+        "web"
+      ],
+      "risk_score": 100,
+      "first_seen": "2026-09-11T11:08:26Z",
+      "last_seen": "2026-09-11T11:08:48Z",
+      "severity": "CRITICAL"
+    }
+  },
+  "service_breakdown": {
+    "ssh": 85,
+    "web": 76,
+    "api": 16,
+    "honeypot": 4
+  },
+  "event_type_breakdown": {
+    "connection_opened": 12,
+    "session_end": 11,
+    "auth_success": 11,
+    "session_start": 4,
+    "command": 29,
+    "decoy_access": 39,
+    "http_request": 54,
+    "auth_attempt": 7,
+    "api_call": 10,
+    "honeypot_started": 4
+  },
+  "decoys_tripped": [
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-users",
+      "target": "cat /etc/passwd"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-users",
+      "target": "/etc/passwd"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-credentials",
+      "target": "cat /root/fake-credentials.txt"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-credentials",
+      "target": "/root/fake-credentials.txt"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-backup",
+      "target": "cat /opt/backups/fake-backup.sql"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-backup",
+      "target": "/opt/backups/fake-backup.sql"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-config",
+      "target": "cat /var/www/html/fake-config.php"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-config",
+      "target": "/var/www/html/fake-config.php"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-config",
+      "target": "fake-config"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-users",
+      "target": "fake-users"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-backup",
+      "target": "fake-backup"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-credentials",
+      "target": "fake-credentials"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-config",
+      "target": "fake-config"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-users",
+      "target": "fake-users"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "127.0.0.1",
+      "resource": "fake-config",
+      "target": "fake-config"
+    },
+    {
+      "ip": "testclient",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "10.113.202.114",
+      "resource": "fake-credentials",
+      "target": "cat /root/fake-credentials.txt"
+    },
+    {
+      "ip": "10.113.202.114",
+      "resource": "fake-credentials",
+      "target": "/root/fake-credentials.txt"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-config",
+      "target": "fake-config"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-users",
+      "target": "fake-users"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-backup",
+      "target": "fake-backup"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-credentials",
+      "target": "fake-credentials"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-config",
+      "target": "fake-config"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-users",
+      "target": "fake-users"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-admin",
+      "target": "fake-admin"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-config",
+      "target": "fake-config"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-users",
+      "target": "cat /etc/passwd"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-users",
+      "target": "/etc/passwd"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-credentials",
+      "target": "cat /root/fake-credentials.txt"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-credentials",
+      "target": "/root/fake-credentials.txt"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-backup",
+      "target": "cat /opt/backups/fake-backup.sql"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-backup",
+      "target": "/opt/backups/fake-backup.sql"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-config",
+      "target": "cat /var/www/html/fake-config.php"
+    },
+    {
+      "ip": "172.18.0.1",
+      "resource": "fake-config",
+      "target": "/var/www/html/fake-config.php"
+    }
+  ],
+  "files_tampered": [],
+  "commands_executed": [
+    {
+      "ip": "10.113.202.114",
+      "command": "cat /root/fake-credentials.txt",
+      "session": "ATK-SSH-633EA3BA"
+    },
+    {
+      "ip": "10.113.202.114",
+      "command": "ls -la",
+      "session": "ATK-SSH-633EA3BA"
+    },
+    {
+      "ip": "10.113.202.114",
+      "command": "whoami",
+      "session": "ATK-SSH-633EA3BA"
+    },
+    {
+      "ip": "10.113.202.114",
+      "command": "cd",
+      "session": "ATK-SSH-633EA3BA"
+    },
+    {
+      "ip": "10.113.202.114",
+      "command": "thissi my work flwo with th eproepr gudidence here",
+      "session": "ATK-SSH-633EA3BA"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "whoami",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "id",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "uname -a",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "hostname -I",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "pwd",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "ls -la /root",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "cat /etc/passwd",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "ps aux",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "netstat -tuln",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "cat /root/fake-credentials.txt",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "cat /opt/backups/fake-backup.sql",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "cat /var/www/html/fake-config.php",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "sudo -l",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "history",
+      "session": "ATK-SSH-C1CA035B"
+    },
+    {
+      "ip": "172.18.0.1",
+      "command": "exit",
+      "session": "ATK-SSH-C1CA035B"
+    }
+  ],
+  "auth_attempts": [
+    {
+      "ip": "127.0.0.1",
+      "user": "root",
+      "payload": "SSH login attempt: user='root', password='wrongpassword123' (SUCCESS)"
+    },
+    {
+      "ip": "127.0.0.1",
+      "user": "devops",
+      "payload": "SSH login attempt: user='devops', password='badpass' (SUCCESS)"
+    },
+    {
+      "ip": "127.0.0.1",
+      "user": "root",
+      "payload": "SSH login attempt: user='root', password='toor' (SUCCESS)"
+    },
+    {
+      "ip": "127.0.0.1",
+      "user": "attacker",
+      "payload": "Web login attempt: user='attacker', pass='password123'"
+    },
+    {
+      "ip": "127.0.0.1",
+      "user": "admin",
+      "payload": "Web login attempt: user='admin', pass='supersecretpassword'"
+    },
+    {
+      "ip": "10.113.202.114",
+      "user": "root",
+      "payload": "SSH login attempt: user='root', password='samay' (SUCCESS)"
+    },
+    {
+      "ip": "testclient",
+      "user": "admin",
+      "payload": "Web login attempt: user='admin', pass='123'"
+    },
+    {
+      "ip": "10.126.251.114",
+      "user": "root",
+      "payload": "SSH login attempt: user='root', password='root' (SUCCESS)"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "admin' OR '1'='1",
+      "payload": "Web login attempt: user='admin' OR '1'='1', pass='password123'"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "test_user",
+      "payload": "Web login attempt: user='test_user', pass='123456'"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "devops@corp.internal",
+      "payload": "Web login attempt: user='devops@corp.internal', pass='devops2026'"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "admin",
+      "payload": "Web login attempt: user='admin', pass='superadminpassword'"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "guest",
+      "payload": "SSH login attempt: user='guest', password='guest' (SUCCESS)"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "user",
+      "payload": "SSH login attempt: user='user', password='user123' (SUCCESS)"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "support",
+      "payload": "SSH login attempt: user='support', password='support2026' (SUCCESS)"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "devops",
+      "payload": "SSH login attempt: user='devops', password='devops_internal' (SUCCESS)"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "admin",
+      "payload": "SSH login attempt: user='admin', password='admin123' (SUCCESS)"
+    },
+    {
+      "ip": "172.18.0.1",
+      "user": "root",
+      "payload": "SSH login attempt: user='root', password='toor' (SUCCESS)"
+    }
+  ],
+  "mitre_mappings": [
+    "T1059.004 - Command and Scripting Interpreter (Unix Shell)",
+    "T1082 - System Information Discovery",
+    "T1110 - Brute Force / Credential Stuffing",
+    "T1552 - Unsecured Credentials & Sensitive Files Access",
+    "T1595 - Active Scanning / Vulnerability Reconnaissance"
+  ]
+}

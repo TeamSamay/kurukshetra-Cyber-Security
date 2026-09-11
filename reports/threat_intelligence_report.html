@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kurukshetra 2.0 — Executive Cyber Threat Intelligence Report</title>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: #151d30;
+            --border: #23304b;
+            --blue: #38bdf8;
+            --red: #f43f5e;
+            --green: #10b981;
+            --yellow: #fbbf24;
+            --text: #f3f4f6;
+            --dim: #94a3b8;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 32px; margin: 0; line-height: 1.5; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+        h1 { margin: 0; color: var(--blue); font-size: 1.8rem; }
+        .meta-text { color: var(--dim); font-size: 0.9rem; margin-top: 4px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .card-title { color: var(--dim); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+        .card-num { font-size: 2.2rem; font-weight: 800; color: #fff; }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 28px; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+        th { background: #090d16; color: var(--dim); text-transform: uppercase; font-size: 0.75rem; }
+        
+        .badge { padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }
+        .badge-crit { background: rgba(244, 63, 94, 0.2); border: 1px solid var(--red); color: #fda4af; }
+        .badge-high { background: rgba(251, 191, 36, 0.2); border: 1px solid var(--yellow); color: #fde68a; }
+        
+        .mitre-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-bottom: 28px; }
+        .mitre-item { background: #0f172a; border: 1px solid #334155; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; }
+        .mitre-item strong { color: var(--blue); }
+        
+        code { color: var(--blue); font-family: monospace; background: #090d16; padding: 2px 6px; border-radius: 4px; }
+        .btn-print { background: var(--blue); color: #0b0f19; font-weight: bold; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+        @media print { .btn-print { display: none; } body { background: #fff; color: #000; } table, .card { border-color: #ccc; background: #fff; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🛡️ Kurukshetra 2.0 Threat Intelligence &amp; Forensics Report</h1>
+            <div class="meta-text">Generated on: <strong>2026-09-11 11:10:16 UTC</strong> &bull; Honeypot Telemetry Source</div>
+        </div>
+        <div>
+            <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        </div>
+    </div>
+
+    <div class="grid-stats">
+        <div class="card">
+            <div class="card-title">Overall Risk Assessment</div>
+            <div class="card-num" style="color: #f43f5e;">CRITICAL (100/100)</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Total Ingested Events</div>
+            <div class="card-num" style="color: var(--blue);">181</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Identified Threat Actors</div>
+            <div class="card-num" style="color: #c084fc;">5</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Decoys Tripped</div>
+            <div class="card-num" style="color: var(--red);">39</div>
+        </div>
+    </div>
+
+    <h2>🎯 MITRE ATT&amp;CK Framework Mappings (Observed Evidence)</h2>
+    <ul class="mitre-list">
+        <li class='mitre-item'><strong>T1059.004</strong>: Command and Scripting Interpreter (Unix Shell)</li><li class='mitre-item'><strong>T1082</strong>: System Information Discovery</li><li class='mitre-item'><strong>T1110</strong>: Brute Force / Credential Stuffing</li><li class='mitre-item'><strong>T1552</strong>: Unsecured Credentials & Sensitive Files Access</li><li class='mitre-item'><strong>T1595</strong>: Active Scanning / Vulnerability Reconnaissance</li>
+    </ul>
+
+    <h2>🕵️ Identified Threat Actors &amp; Profiles</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Attacker IP</th>
+                <th>Calculated Threat Score</th>
+                <th>Correlated Sessions</th>
+                <th>Total Activity</th>
+                <th>Targeted Services</th>
+                <th>Last Active Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        <tr>
+            <td><strong style="color:#38bdf8;">127.0.0.1</strong></td>
+            <td><span class="badge badge-crit">CRITICAL (100/100)</span></td>
+            <td>17 Sessions</td>
+            <td>72 Events</td>
+            <td>HONEYPOT, SSH, WEB, API</td>
+            <td><small>2026-09-11T11:03:04Z</small></td>
+        </tr>
+        
+        <tr>
+            <td><strong style="color:#38bdf8;">10.113.202.114</strong></td>
+            <td><span class="badge badge-crit">CRITICAL (100/100)</span></td>
+            <td>4 Sessions</td>
+            <td>16 Events</td>
+            <td>SSH, WEB</td>
+            <td><small>2026-09-11T09:35:41Z</small></td>
+        </tr>
+        
+        <tr>
+            <td><strong style="color:#38bdf8;">testclient</strong></td>
+            <td><span class="badge badge-high">MEDIUM (45/100)</span></td>
+            <td>2 Sessions</td>
+            <td>9 Events</td>
+            <td>WEB</td>
+            <td><small>2026-09-11T09:22:39Z</small></td>
+        </tr>
+        
+        <tr>
+            <td><strong style="color:#38bdf8;">10.126.251.114</strong></td>
+            <td><span class="badge badge-high">MEDIUM (20/100)</span></td>
+            <td>1 Sessions</td>
+            <td>3 Events</td>
+            <td>SSH</td>
+            <td><small>2026-09-11T10:52:26Z</small></td>
+        </tr>
+        
+        <tr>
+            <td><strong style="color:#38bdf8;">172.18.0.1</strong></td>
+            <td><span class="badge badge-crit">CRITICAL (100/100)</span></td>
+            <td>8 Sessions</td>
+            <td>81 Events</td>
+            <td>SSH, API, WEB</td>
+            <td><small>2026-09-11T11:08:48Z</small></td>
+        </tr>
+        
+        </tbody>
+    </table>
+
+    <h2>🚨 Decoy Resource Access &amp; Credential Theft Alarms</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Source IP</th>
+                <th>Decoy Asset Name</th>
+                <th>Probed Target / Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-admin</span></td><td><code>fake-admin</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-config</span></td><td><code>fake-config</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-users</span></td><td><code>cat /etc/passwd</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-users</span></td><td><code>/etc/passwd</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-credentials</span></td><td><code>cat /root/fake-credentials.txt</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-credentials</span></td><td><code>/root/fake-credentials.txt</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-backup</span></td><td><code>cat /opt/backups/fake-backup.sql</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-backup</span></td><td><code>/opt/backups/fake-backup.sql</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-config</span></td><td><code>cat /var/www/html/fake-config.php</code></td></tr><tr><td><code>172.18.0.1</code></td><td><span class='badge badge-crit'>fake-config</span></td><td><code>/var/www/html/fake-config.php</code></td></tr>
+        </tbody>
+    </table>
+
+    <h2>✏️ Attacker File Creation &amp; Tampering Evidence</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Attacker IP</th>
+                <th>Tampering Action</th>
+                <th>Target File Path</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan='3'>No file tampering recorded.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-title">🛡️ Automated AI Defensive Recommendations</div>
+        <ol style="margin-left: 20px; font-size: 0.9rem; color: #cbd5e1;">
+            <li><strong>Isolate Attacker Source IPs:</strong> Block identified malicious IPs (e.g. <code>127.0.0.1, 10.113.202.114, testclient, 10.126.251.114, 172.18.0.1</code>) at edge firewall.</li>
+            <li><strong>Rotate Compromised Deception Secrets:</strong> Audit and invalidate all credentials probed by threat actors (Root SSH keys, PostgreSQL passwords, AWS tokens).</li>
+            <li><strong>Enforce Zero-Trust MFA:</strong> Restrict administrative access to SSH and internal SSO endpoints.</li>
+        </ol>
+    </div>
+</body>
+</html>

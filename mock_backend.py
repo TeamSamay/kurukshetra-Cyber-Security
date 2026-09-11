@@ -60,18 +60,10 @@ received_events: List[Dict[str, Any]] = []
 backend_log_file = Path("logs/backend_received_events.jsonl")
 backend_log_file.parent.mkdir(parents=True, exist_ok=True)
 
-# Load existing events if available for persistence across restarts
-if backend_log_file.exists():
-    try:
-        with open(backend_log_file, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    try:
-                        received_events.append(json.loads(line))
-                    except Exception:
-                        pass
-    except Exception as e:
-        console.print(f"[yellow]Note: Could not preload past events: {e}[/yellow]")
+# NOTE: Events are NOT preloaded on restart.
+# Only real live honeypot events from the VM will populate the dashboard.
+# This ensures dashboard shows only genuine attack telemetry.
+console.print("[bold green][BACKEND][/bold green] Fresh start — awaiting real honeypot events from VM.")
 
 
 @app.get("/api/health", response_class=JSONResponse)
@@ -151,6 +143,31 @@ async def list_events(
         "total_events": len(received_events),
         "filtered_count": len(filtered),
         "events": filtered[-limit:]
+    }
+
+
+@app.delete("/api/clear", response_class=JSONResponse)
+async def clear_all_events():
+    """
+    Clears all in-memory events and resets the backend log file.
+    Use this to wipe stale/simulated data before a real demo.
+    """
+    global received_events
+    cleared_count = len(received_events)
+    received_events.clear()
+
+    # Also truncate the log file on disk
+    try:
+        with open(backend_log_file, "w", encoding="utf-8") as f:
+            f.write("")
+    except Exception:
+        pass
+
+    console.print(f"[bold yellow][BACKEND][/bold yellow] Dashboard cleared — {cleared_count} stale events removed. Ready for real attacks.")
+    return {
+        "status": "cleared",
+        "events_removed": cleared_count,
+        "message": "All events cleared. Dashboard ready for real honeypot telemetry."
     }
 
 

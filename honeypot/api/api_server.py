@@ -267,9 +267,66 @@ async def get_attacker_profile(session_or_ip: str):
     }
 
 
+@api_router.get("/ai/analysis")
+async def get_live_ai_threat_analysis(limit: int = 35):
+    """
+    Live AI threat-landscape analysis powered by Kurukshetra AI Advisor.
+    Uses Groq LLaMA 3.3 when GROQ_API_KEY is configured, otherwise the
+    built-in heuristic cyber engine. Reads the latest telemetry feed.
+    """
+    import json as _json
+    from pathlib import Path
+    from honeypot.common.ai_advisor import ai_advisor
+
+    events: list = []
+    log_path = Path(settings.LOG_DIR) / "events.jsonl"
+    if log_path.exists():
+        lines = log_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
+        for line in lines[-max(limit, 35):]:
+            try:
+                parsed = _json.loads(line)
+                if isinstance(parsed, dict):
+                    events.append(parsed)
+            except Exception:
+                continue
+
+    analysis = ai_advisor.analyze_threat_landscape(events, stats=None)
+    return analysis
+
+
 # ===================================================================
 # Company Server Clone Provisioning (Honeypot-as-a-Service)
 # ===================================================================
+
+class CopilotQuery(BaseModel):
+    query: str
+    history: Optional[list] = None
+
+
+@api_router.post("/ai/copilot")
+async def soc_ai_copilot(payload: CopilotQuery):
+    """Interactive SOC AI Copilot — answers questions about live attacks."""
+    import json as _json
+    from pathlib import Path
+    from honeypot.common.ai_advisor import ai_advisor
+
+    events: list = []
+    log_path = Path(settings.LOG_DIR) / "events.jsonl"
+    if log_path.exists():
+        for line in log_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()[-35:]:
+            try:
+                parsed = _json.loads(line)
+                if isinstance(parsed, dict):
+                    events.append(parsed)
+            except Exception:
+                continue
+
+    return ai_advisor.chat_copilot(
+        query=payload.query,
+        events=events,
+        conversation_history=payload.history,
+    )
+
 
 @api_router.get("/clone/status")
 async def clone_status():

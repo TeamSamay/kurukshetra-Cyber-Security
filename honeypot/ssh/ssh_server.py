@@ -142,12 +142,30 @@ class HoneypotSSHInterface(paramiko.ServerInterface):
         return True
 
 
+_active_ip_sessions: Dict[str, tuple] = {}
+_session_lock = threading.Lock()
+
+def get_or_create_ip_session(client_ip: str, prefix: str = "ATK-SSH", max_idle_sec: float = 300.0) -> str:
+    """Reuses active session ID for repeated attempts from the same IP within 5 minutes."""
+    now = time.time()
+    with _session_lock:
+        if client_ip in _active_ip_sessions:
+            sess_id, last_active = _active_ip_sessions[client_ip]
+            if now - last_active < max_idle_sec:
+                _active_ip_sessions[client_ip] = (sess_id, now)
+                return sess_id
+        clean_ip = client_ip.replace(".", "-").replace(":", "-")
+        new_sess_id = f"{prefix}-{clean_ip}"
+        _active_ip_sessions[client_ip] = (new_sess_id, now)
+        return new_sess_id
+
+
 def handle_ssh_client(client_sock: socket.socket, client_addr: tuple, host_key: paramiko.RSAKey) -> None:
     """
     Handles a single connected SSH client in a dedicated thread.
     """
     client_ip, client_port = client_addr
-    session_id = generate_session_id(prefix="ATK-SSH", ip=client_ip)
+    session_id = get_or_create_ip_session(client_ip, prefix="ATK-SSH")
 
     # 1. Telemetry: New incoming connection
     emit_event(
